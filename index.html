@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Xcode Code Snippet Generator — Custom .codesnippet Files for iOS</title>
+<meta name="description" content="Create custom Xcode code snippets with autocomplete shortcuts. Configure title, completion prefix, scope (top-level, code block, class), and platform. Download the .codesnippet plist file and drop it into Xcode. Free, browser-only." />
+<link rel="canonical" href="https://xcode-snippet-generator.vercel.app/" />
+<meta property="og:title" content="Xcode Code Snippet Generator" />
+<meta property="og:description" content="Generate custom Xcode .codesnippet plist files. Set completion shortcuts, scopes, platform, and language. Download and drop into Xcode. Free." />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Xcode Code Snippet Generator" />
+<meta name="twitter:description" content="Create custom Xcode code snippets with completion shortcuts. Download ready-to-use .codesnippet files. Free." />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Xcode Code Snippet Generator","url":"https://xcode-snippet-generator.vercel.app/","description":"Generate custom Xcode .codesnippet plist files. Set completion shortcuts, scope, platform and language. Download and install instantly.","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
+<style>
+  :root{
+    --bg:#0b0c10;--panel:#15171f;--panel2:#1c1f2a;--ink:#eef1f7;--muted:#9aa3b5;
+    --line:#262a36;--accent:#5b8cff;--ok:#34d399;--warn:#fbbf24;--err:#f87171;
+    --radius:14px;--mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:radial-gradient(1100px 600px at 40% -10%,#10152a 0,transparent 55%),var(--bg)}
+  header{padding:42px 22px 10px;max-width:1100px;margin:0 auto}
+  .badge{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);
+    border:1px solid var(--line);padding:5px 11px;border-radius:999px;background:var(--panel)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok)}
+  h1{font-size:30px;margin:16px 0 6px;letter-spacing:-.4px}
+  h1 span{color:var(--accent)}
+  .sub{color:var(--muted);max-width:660px}
+  main{max-width:1100px;margin:18px auto 60px;padding:0 22px;display:grid;grid-template-columns:1fr 400px;gap:22px;align-items:start}
+  @media(max-width:900px){main{grid-template-columns:1fr}}
+
+  /* Examples bar */
+  .examples-bar{margin-bottom:14px}
+  .examples-label{font-size:12.5px;color:var(--muted);font-weight:600;margin-bottom:8px}
+  #examplesContainer{display:flex;flex-wrap:wrap;gap:6px}
+  .example-btn{padding:5px 12px;border-radius:7px;border:1px solid var(--line);background:none;
+    color:var(--muted);font:12.5px/1 inherit;cursor:pointer}
+  .example-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .example-btn.active{background:rgba(91,140,255,.15);border-color:var(--accent);color:var(--accent)}
+
+  /* Card */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-bottom:14px}
+  .card-title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
+  .form-row{margin-bottom:14px}
+  .form-row:last-child{margin-bottom:0}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px;font-weight:500}
+  input[type=text],select,textarea{background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+    border-radius:8px;padding:8px 12px;font:inherit;font-size:13.5px;outline:none;width:100%}
+  input[type=text]:focus,select:focus,textarea:focus{border-color:var(--accent)}
+  textarea{font-family:var(--mono);font-size:13px;resize:vertical;min-height:220px;line-height:1.5}
+  .hint{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4}
+  .placeholder-hint{background:rgba(91,140,255,.07);border:1px solid rgba(91,140,255,.15);border-radius:8px;
+    padding:10px 14px;font-size:12.5px;color:var(--muted);margin-top:8px}
+  .placeholder-hint code{color:var(--accent);font-family:var(--mono)}
+
+  /* Install guide */
+  .install-card{background:linear-gradient(135deg,#141a2a 0%,#111520 100%);border:1px solid #252c40;
+    border-radius:var(--radius);padding:18px 22px}
+  .install-title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+  .step{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;font-size:13.5px}
+  .step:last-child{margin-bottom:0}
+  .step-num{width:22px;height:22px;border-radius:50%;background:rgba(91,140,255,.2);color:var(--accent);
+    font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;margin-top:2px}
+  .step code{color:var(--accent);font-family:var(--mono);font-size:12px;word-break:break-all}
+
+  /* Output */
+  .output-sticky{position:sticky;top:16px}
+  .output-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .output-header{display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);gap:8px;flex-wrap:wrap}
+  .output-title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;flex:1}
+  .fname{font-family:var(--mono);font-size:11.5px;color:var(--accent)}
+  .action-btn{cursor:pointer;border:1px solid var(--line);border-radius:7px;padding:5px 12px;
+    font:12px/1 inherit;font-weight:600;background:none;color:var(--muted)}
+  .action-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .action-btn.primary{background:linear-gradient(180deg,#6b97ff,#4a78ff);border:0;color:#fff}
+  .action-btn.primary:hover{opacity:.9}
+  pre{margin:0;padding:16px;font-size:11.5px;font-family:var(--mono);white-space:pre;
+    color:var(--ink);max-height:560px;overflow:auto;line-height:1.6}
+
+  .tip-box{background:linear-gradient(135deg,#1a2035 0%,#141825 100%);border:1px solid #2a304a;
+    border-radius:14px;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:12px}
+  footer{max-width:1100px;margin:0 auto;padding:0 22px 50px;color:#6b7385;font-size:12.5px}
+  footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <span class="badge"><span class="dot"></span>.codesnippet XML · autocomplete shortcuts · 8 built-in examples · browser-only</span>
+  <h1>Xcode <span>Snippet Generator</span></h1>
+  <p class="sub">Create custom Xcode code snippets with autocomplete shortcuts. Configure scope, platform, and completion prefix — download a <code>.codesnippet</code> plist file and drop it directly into Xcode.</p>
+</header>
+<main>
+
+<!-- Left: form -->
+<div>
+  <!-- Examples -->
+  <div class="examples-bar">
+    <div class="examples-label">Load an example:</div>
+    <div id="examplesContainer"></div>
+  </div>
+
+  <!-- Metadata -->
+  <div class="card">
+    <div class="card-title">Snippet Metadata</div>
+    <div class="form-row">
+      <label for="inp_title">Title <span style="color:var(--err)">*</span></label>
+      <input type="text" id="inp_title" placeholder="MARK Comment" oninput="generate()" />
+      <div class="hint">Shown in the Xcode snippet library.</div>
+    </div>
+    <div class="form-row">
+      <label for="inp_summary">Summary</label>
+      <input type="text" id="inp_summary" placeholder="Insert a MARK section divider" oninput="generate()" />
+    </div>
+    <div class="form-row">
+      <label for="inp_completion">Completion Prefix (shortcut)</label>
+      <input type="text" id="inp_completion" placeholder="mark" oninput="generate()" />
+      <div class="hint">Type this in Xcode and press Tab/Return to insert the snippet.</div>
+    </div>
+    <div class="form-grid">
+      <div>
+        <label for="inp_platform">Platform</label>
+        <select id="inp_platform" onchange="generate()">
+          <option>All</option>
+          <option>iOS</option>
+          <option>macOS</option>
+          <option>watchOS</option>
+          <option>tvOS</option>
+          <option>visionOS</option>
+        </select>
+      </div>
+      <div>
+        <label for="inp_language">Language</label>
+        <select id="inp_language" onchange="generate()">
+          <option>Swift</option>
+          <option>Objective-C</option>
+          <option>C</option>
+          <option>C++</option>
+          <option>Any</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <label for="inp_scope">Completion Scope</label>
+      <select id="inp_scope" onchange="generate()">
+        <option value="CodeBlock">Code Block (inside a function)</option>
+        <option value="ClassImplementation">Class Implementation (inside a class/struct)</option>
+        <option value="TopLevel">Top Level (file level)</option>
+        <option value="StringOrComment">String or Comment</option>
+        <option value="All">All Scopes</option>
+      </select>
+      <div class="hint">Controls where the autocomplete suggestion appears in Xcode.</div>
+    </div>
+  </div>
+
+  <!-- Code -->
+  <div class="card">
+    <div class="card-title">Snippet Code</div>
+    <div class="form-row">
+      <label for="inp_code">Code</label>
+      <textarea id="inp_code" oninput="generate()" placeholder="// MARK: - <#Section Name#>"></textarea>
+    </div>
+    <div class="placeholder-hint">
+      Wrap editable placeholder text with <code>&lt;#</code> and <code>#&gt;</code>: e.g. <code>&lt;#placeholder text#&gt;</code>. Xcode will highlight these and let users tab between them.
+    </div>
+  </div>
+
+  <!-- Install guide -->
+  <div class="install-card">
+    <div class="install-title">How to install in Xcode</div>
+    <div class="step"><span class="step-num">1</span><span>Download the <code>.codesnippet</code> file using the button on the right.</span></div>
+    <div class="step"><span class="step-num">2</span><span>Open Finder and press <code>⇧⌘G</code>, then paste: <code>~/Library/Developer/Xcode/UserData/CodeSnippets/</code></span></div>
+    <div class="step"><span class="step-num">3</span><span>Drop the downloaded file into that folder.</span></div>
+    <div class="step"><span class="step-num">4</span><span>Restart Xcode (or use File → Close &amp; Reopen). Your snippet now appears in the snippet library and autocomplete.</span></div>
+  </div>
+</div>
+
+<!-- Right: output -->
+<div class="output-sticky">
+  <div class="output-card">
+    <div class="output-header">
+      <span class="output-title">.codesnippet</span>
+      <span class="fname" id="filenameBadge">snippet.codesnippet</span>
+      <button class="action-btn" id="copyBtn" onclick="copyOutput()">Copy</button>
+      <button class="action-btn primary" id="downloadBtn" onclick="downloadOutput()">↓ Download</button>
+    </div>
+    <pre id="output"></pre>
+  </div>
+
+  <div class="tip-box">
+    <div>
+      <div style="font-weight:700;font-size:15px;margin-bottom:4px">✦ Support this project</div>
+      <div style="color:#9aa3b5;font-size:13px">Free tool by Orb Intelligence.</div>
+    </div>
+    <a href="https://buy.stripe.com/4gM28t2xG3SngLvbiY6wE01" target="_blank" rel="noopener"
+      style="display:inline-block;background:linear-gradient(180deg,#6b97ff,#4a78ff);color:#fff;font-weight:650;font-size:14px;padding:10px 20px;border-radius:10px;text-decoration:none;white-space:nowrap">
+      Support · $9.90
+    </a>
+  </div>
+</div>
+
+<footer>
+  Built by <b>Orb Intelligence</b>. Generated files contain a random UUID — each download is unique. Nothing is uploaded.
+  <br><br>
+  More free tools:
+  <a href="https://appstore-metadata-auditor.vercel.app/" rel="noopener">Metadata Auditor</a> ·
+  <a href="https://ios-privacy-policy-generator.vercel.app/" rel="noopener">Privacy Policy Generator</a> ·
+  <a href="https://ios-app-review-generator.vercel.app/" rel="noopener">Review Responder</a> ·
+  <a href="https://appstore-screenshot-generator-theta.vercel.app/" rel="noopener">Screenshot Generator</a> ·
+  <a href="https://appstore-keyword-optimizer.vercel.app/" rel="noopener">Keyword Optimizer</a> ·
+  <a href="https://appstore-release-notes-generator.vercel.app/" rel="noopener">Release Notes Generator</a> ·
+  <a href="https://ios-app-icon-resizer.vercel.app/" rel="noopener">Icon Resizer</a> ·
+  <a href="https://appstore-submission-checklist.vercel.app/" rel="noopener">Submission Checklist</a> ·
+  <a href="https://ios-privacy-manifest-generator.vercel.app/" rel="noopener">Privacy Manifest Generator</a> ·
+  <a href="https://ios-entitlements-generator.vercel.app/" rel="noopener">Entitlements Generator</a> ·
+  <a href="https://testflight-feedback-organizer.vercel.app/" rel="noopener">Beta Feedback Organizer</a> ·
+  <a href="https://appstore-localization-helper.vercel.app/" rel="noopener">Localization Helper</a> ·
+  <a href="https://appstore-age-rating-calculator.vercel.app/" rel="noopener">Age Rating Calculator</a> ·
+  <a href="https://ios-iap-configurator.vercel.app/" rel="noopener">IAP Configurator</a> ·
+  <a href="https://ios-push-payload-builder.vercel.app/" rel="noopener">Push Payload Builder</a> ·
+  <a href="https://xcode-build-phase-generator.vercel.app/" rel="noopener">Build Phase Generator</a> ·
+  <a href="https://ios-url-scheme-tester.vercel.app/" rel="noopener">URL Scheme Tester</a> ·
+  <a href="https://swift-package-manifest-builder.vercel.app/" rel="noopener">SPM Manifest Builder</a> ·
+  <a href="https://ios-info-plist-generator.vercel.app/" rel="noopener">Info.plist Generator</a> ·
+  <a href="https://xcode-xcconfig-generator.vercel.app/" rel="noopener">xcconfig Generator</a> ·
+  <a href="https://fastlane-config-generator.vercel.app/" rel="noopener">Fastlane Config Generator</a> ·
+  <a href="https://xcode-snippet-generator.vercel.app/" rel="noopener">Snippet Generator</a>
+</footer>
+
+</main>
+<script src="snippet.js"></script>
+</body>
+</html>
